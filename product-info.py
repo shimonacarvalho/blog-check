@@ -142,11 +142,15 @@ def output_to_html(items):
     html += htmlbits.html_head
     html += f"<body><div class=\"container\">"
 
-    # updated_asins = load_replacement_asins()
+    updated_asins = load_replacement_asins("replacements.json")
+
     for item in items:
         # print(item)
         (item_html, status) = item_to_html(item)
         html += item_html
+        if item.asin in updated_asins:
+            rep = updated_asins[item.asin]
+            html+= f"B00KT7GJGS will be replaced by {rep}"
         html += f"<div class=\"rule\"></div>"
 
     html += "</div></body></html>"
