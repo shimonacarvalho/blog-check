@@ -137,20 +137,19 @@ def item_to_html(item):
     return (html, status)
 
 
-def output_to_html(items):
+def output_to_html(items, replacement_items):
     html = ""
     html += htmlbits.html_head
     html += f"<body><div class=\"container\">"
 
-    updated_asins = load_replacement_asins("replacements.json")
 
     for item in items:
         # print(item)
         (item_html, status) = item_to_html(item)
         html += item_html
-        if item.asin in updated_asins:
-            rep = updated_asins[item.asin]
-            html+= f"B00KT7GJGS will be replaced by {rep}"
+        if item.asin in replacement_items:
+            rep = replacement_items[item.asin]
+            html+= f"<h3>B00KT7GJGS will be replaced by {rep.asin}</h3>"
         html += f"<div class=\"rule\"></div>"
 
     html += "</div></body></html>"
@@ -162,14 +161,32 @@ def output_to_html(items):
     with open(html_file_path, "w") as html_file:
         html_file.write(html)
 
-
 def load_replacement_asins(filepath):
+    # hese are the replacement asin dict
+    asin_to_rsins = load_json(filepath)
+    # make a list of all the replacement products
+    rsins = list(asin_to_rsins.values())
+    # get product info
+    rprods = amazon.get_items(rsins)
+    print("\n\n")
+    # print(products)
+    # make a dictionary with entries asin -> product
+    rsins_to_rprods = {product.asin: product for product in rprods}
+    # make a another dictionary of the original asin -> replacement product
+    asins_to_rprods = {asin: rsins_to_rprods[asin_to_rsins[asin]] for asin in asin_to_rsins}
+    print(asins_to_rprods)
+    return asins_to_rprods
+
+
+
+def load_json(filepath):
     # Check if the file exists
     if os.path.exists(filepath):
         # File exists, attempt to load the dictionary from the file
         try:
             with open(filepath, 'r') as json_file:
                 return json.load(json_file)
+
         except json.JSONDecodeError:
             # Handle case where the file could not be decoded as JSON
             print(f"Error: {filepath} could not be decoded as JSON.")
@@ -224,11 +241,13 @@ def main():
         
     print(asins)
     items = amazon.get_items(asins)
+    replacement_items = load_replacement_asins("replacements.json")
+
     print(f"ASINs found: {asins}")
     if json_mode:
         print(items)
     else:
-        output_to_html(items)
+        output_to_html(items, replacement_items)
 
 
 main()
