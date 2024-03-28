@@ -134,25 +134,25 @@ def item_to_html(item):
 
     # Join all img tags into a single string with newlines between each for readability
     html += '\n'.join(img_tags)
-    return (html, status)
+    return html
 
 
 def output_to_html(items, replacement_items):
     html = ""
     html += htmlbits.html_head
-    html += f"<body><div class=\"container\">"
+    html += f"<body>"
 
 
     for item in items:
-        # print(item)
-        (item_html, status) = item_to_html(item)
-        html += item_html
+        html += "<div class=\"container\">"
+        html += item_to_html(item)
         if item.asin in replacement_items:
             rep = replacement_items[item.asin]
-            html+= f"<h3>B00KT7GJGS will be replaced by {rep.asin}</h3>"
-        html += f"<div class=\"rule\"></div>"
+            html += f"<div class=\"status replace\">{item.asin} will be replaced by {rep.asin}</div><p>"
 
-    html += "</div></body></html>"
+            html += item_to_html(rep)
+        html +="</div>"
+    html += "</body></html>"
 
     # Specify the path for the HTML file
     html_file_path = "output.html"

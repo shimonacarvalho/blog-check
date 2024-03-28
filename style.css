@@ -38,6 +38,7 @@ img {
 .container {
     max-width: 800px;
     margin: auto;
+    margin-bottom:50px;
     background: #fff;
     padding: 50px;
     border-radius: 5px;
@@ -74,5 +75,8 @@ img {
 }
 .borked {
     background-color: rgb(165, 37, 120);
+}
+.replace {
+    background-color: rgb(37, 95, 165);
 }
 
