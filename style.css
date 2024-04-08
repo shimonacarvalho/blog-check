@@ -30,9 +30,9 @@ ul li {
 }
 
 img {
-    margin-top: 20px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+	margin-top: 20px;
+	border-radius: 5px;
+	border: solid 1px #ccc;
 }
 
 .container {
@@ -59,7 +59,7 @@ img {
 .rule {
     margin-top:25px;
     margin-bottom: 50px;
-    border-top: solid 3px #ccc
+    border: solid 3px #ccc
 }
 
 .status {
@@ -80,3 +80,27 @@ img {
     background-color: rgb(37, 95, 165);
 }
 
+.copyButton {
+	background: none;
+	border: none;
+}
+
+.copyButton img {
+	box-shadow: none;
+	filter: invert(95%) sepia(0%) saturate(0%) hue-rotate(186deg) brightness(90%) contrast(85%);
+	height: 20px;
+	width: 20px;
+	position: relative;
+	top: 3px;
+	left: 5px;
+    margin:0px;
+    border:none;
+
+}
+.copyButton-active img {
+    box-shadow: none;
+    filter: invert(95%) sepia(0%) saturate(0%) hue-rotate(186deg) brightness(90%) contrast(85%);
+    height:20px;
+    width:20px;
+    margin-top:none;
+}

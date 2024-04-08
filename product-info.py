@@ -7,6 +7,20 @@ from amazon_paapi import AmazonApi
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs
 from dotenv import load_dotenv
+from urllib.parse import urlparse
+import re
+
+def slugify(source):
+
+    parsed_url = urlparse(source)
+    if bool(parsed_url.scheme):
+        print('is an url')
+        source = parsed_url.path
+    slug = re.sub('[/.,]|(%..)', '-', source)
+    slug = re.sub('^-+', '', slug)
+    slug = re.sub('-+$', '', slug)
+    slug = re.sub('-+', '-', slug)
+    return slug
 
 
 
@@ -95,6 +109,10 @@ REGION = 'US'
 # Initialize the Amazon API client
 amazon = AmazonApi(ACCESS_KEY, SECRET_KEY, ASSOCIATE_TAG, REGION)
 
+def txt_to_copy(txt):
+    return f"<button class='copyButton' data-text-to-copy='{txt}'><img src='copy-icon.svg' width='24' height='24'></button>"
+
+
 def item_to_html(item):
     html = ""
     title = item.item_info.title.display_value
@@ -109,9 +127,11 @@ def item_to_html(item):
     except AttributeError:
         images = []
     
-    html += f"<h3>{title}</h3>"
+    html += f"<h3>{title}{txt_to_copy(title)}</h3>"
+    html += f"{item.asin}{txt_to_copy(item.asin)}<br>"
     url = f"https://www.amazon.com/dp/{item.asin}/?tag={ASSOCIATE_TAG}"
-    html += f"<a href=\"{url}\">{url}</a><br>"
+    html += f"<a href=\"{url}\">{url}</a>"
+    html += f"{txt_to_copy(url)}<br>";
 
     for listing in listings:            
         html += f"<div class=\"brand\">{listing.merchant_info.name}</div>"
@@ -137,7 +157,7 @@ def item_to_html(item):
     return html
 
 
-def output_to_html(items, replacement_items):
+def output_to_html(items, replacement_items, source):
     html = ""
     html += htmlbits.html_head
     html += f"<body>"
@@ -155,12 +175,15 @@ def output_to_html(items, replacement_items):
     html += "</body></html>"
 
     # Specify the path for the HTML file
-    html_file_path = "output.html"
+    html_file_path = f"{slugify(source)}.html"
+    print(f"Printing to {html_file_path}")
 
     # Write the HTML content to the file
     with open(html_file_path, "w") as html_file:
         html_file.write(html)
 
+
+# Todo - eventually only request info when you want to replace
 def load_replacement_asins(filepath):
     # hese are the replacement asin dict
     asin_to_rsins = load_json(filepath)
@@ -217,8 +240,10 @@ def main():
 
     if args.asins:
         in_mode = ASIN_MODE
+        source = args.asins
     elif args.url:
         in_mode = URL_MODE
+        source = args.url
         print(f"URL provided: {args.url}")
     else:
         print("No valid option provided.")
@@ -247,7 +272,7 @@ def main():
     if json_mode:
         print(items)
     else:
-        output_to_html(items, replacement_items)
+        output_to_html(items, replacement_items, source)
 
 
 main()
